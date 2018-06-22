@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aek.ebey.repair.mapper.RepPartsRecordMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.aek.ebey.repair.model.RepPartsRecord">
+		<id column="id" property="id" />
+		<result column="report_id" property="reportId" />
+		<result column="tenant_id" property="tenantId" />
+		<result column="part_name" property="partName" />
+		<result column="part_spec" property="partSpec" />
+		<result column="part_produce" property="partProduce" />
+		<result column="part_price" property="partPrice" />
+		<result column="unit" property="unit" />
+		<result column="num" property="num" />
+		<result column="status" property="status" />
+		<result column="operation_time" property="operationTime" />
+		<result column="del_flag" property="delFlag" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, report_id AS reportId, tenant_id AS tenantId, part_id AS partId, part_name AS partName, part_spec AS partSpec, part_produce AS partProduce, part_price AS partPrice, unit, num, status, operation_time AS operationTime, del_flag AS delFlag
+    </sql>
+    
+    <select id="search" resultType="com.aek.ebey.repair.model.RepPartsRecord">
+		SELECT
+		r.id,
+		r.report_id AS reportId,
+		r.tenant_id AS tenantId,
+		r.part_name AS partName,
+		r.part_spec AS partSpec,
+		r.part_produce AS partProduce,
+		r.part_price AS partPrice,
+		r.unit AS unit,
+		r.num,
+		r.status,
+		r.operation_time AS operationTime,
+		r.del_flag AS delFlag
+		FROM
+		rep_parts_record r
+		 where r.del_flag=0
+
+		<if test="query.status != null and query.status != ''">
+			AND r.status=#{query.status}
+		</if>
+		<if test="query.partName != null and query.partName != ''">
+			AND r.part_name like '%${query.partName}%'
+		</if>
+		<if test="user != null and user.tenantId != null and user.tenantId != ''">
+			AND r.tenant_id=#{user.tenantId}
+		</if>
+		order by r.operation_time desc
+	</select>
+</mapper>

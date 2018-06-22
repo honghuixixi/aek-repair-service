@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aek.ebey.repair.mapper.RepRepairBillCheckFlowMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.aek.ebey.repair.model.RepRepairBillCheckFlow">
+		<id column="id" property="id" />
+		<result column="bill_id" property="billId" />
+		<result column="flow_name" property="flowName" />
+		<result column="check_user_id" property="checkUserId" />
+		<result column="check_user_name" property="checkUserName" />
+		<result column="check_user_mobile" property="checkUserMobile" />
+		<result column="index" property="index" />
+		<result column="check_status" property="checkStatus" />
+		<result column="check_remark" property="checkRemark" />
+		<result column="check_time" property="checkTime" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, 
+        bill_id AS billId, 
+        flow_name AS flowName,
+        check_user_id AS checkUserId,
+        check_user_name AS checkUserName,
+		check_user_mobile AS checkUserMobile,
+		`index` AS 'index',
+		check_status AS checkStatus,
+		check_remark AS checkRemark,
+		check_time AS checkTime
+    </sql>
+    
+     <select id="getRepairBillApprovePage" resultType="com.aek.ebey.repair.request.RepRepairBillApproveResponse">
+    	select
+    	 	b.id, 
+	        b.bill_no AS billNo,
+			b.apply_id AS applyId,
+			b.apply_no AS applyNo,
+			b.type AS type,
+			f.check_status AS status,
+			b.assets_name AS assetsName,
+			b.assets_dept_name AS assetsDeptName,
+			b.apply_user_id AS applyUserId,
+			b.apply_user_name AS applyUserName,
+			b.apply_time AS applyTime
+    	from rep_repair_bill b
+    	inner join rep_repair_bill_check_flow f on b.id = f.bill_id and b.current_index = f.index and b.status !=4
+    	where 1=1 and f.check_user_id = #{user.id}
+    	<!-- 状态查询 -->
+    	<if test="q.status != null and q.status != ''">
+    		and f.check_status = #{q.status}
+    	</if>
+    	<!-- 单据类型 -->
+    	<if test="q.type != null and q.type != ''">
+    		and b.type = #{q.type}
+    	</if>
+    	<!-- 关键字查询 -->
+    	<if test="q.keyword != null and q.keyword != ''">
+    		and (b.assets_name like CONCAT('%',#{q.keyword},'%') or b.bill_no like CONCAT('%',#{q.keyword},'%'))
+    	</if>
+    	ORDER BY f.check_status,b.apply_time DESC
+    </select>
+    
+         <select id="getRepairBillApprovePage2" resultType="com.aek.ebey.repair.request.RepRepairBillApproveResponse">
+    	select
+    	 	b.id, 
+	        b.bill_no AS billNo,
+			b.apply_id AS applyId,
+			b.apply_no AS applyNo,
+			b.type AS type,
+			f.check_status AS status,
+			b.assets_name AS assetsName,
+			b.assets_dept_name AS assetsDeptName,
+			b.apply_user_id AS applyUserId,
+			b.apply_user_name AS applyUserName,
+			b.apply_time AS applyTime
+    	from rep_repair_bill b
+    	inner join rep_repair_bill_check_flow f on b.id = f.bill_id and b.status !=4
+    	where 1=1 and f.check_user_id = #{user.id}
+    	<!-- 状态查询 -->
+    	<if test="q.status != null and q.status != '' and q.status !=4">
+    		and f.check_status = #{q.status}
+    	</if>
+    	<if test="q.status != null and q.status != '' and q.status ==4">
+    		and f.check_status in (2,3)
+    	</if>
+    	<!-- 单据类型 -->
+    	<if test="q.type != null and q.type != ''">
+    		and b.type = #{q.type}
+    	</if>
+    	<!-- 关键字查询 -->
+    	<if test="q.keyword != null and q.keyword != ''">
+    		and (b.assets_name like CONCAT('%',#{q.keyword},'%') or b.bill_no like CONCAT('%',#{q.keyword},'%'))
+    	</if>
+    	ORDER BY f.check_status,b.apply_time DESC
+    </select>
+    
+    <select id="getWaitToDo" resultType="int">
+    	select
+    	 	count(1)
+    	from rep_repair_bill b
+    	inner join rep_repair_bill_check_flow f on b.id = f.bill_id and b.current_index = f.index and b.status !=4
+    	where 1=1  	and f.check_status = 1 and f.check_user_id = #{id}
+    </select>
+    
+    
+</mapper>

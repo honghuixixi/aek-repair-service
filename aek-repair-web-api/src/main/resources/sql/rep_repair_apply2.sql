@@ -1,0 +1,9 @@
+ALTER TABLE `rep_repair_apply` ADD COLUMN `dept_id` BIGINT (11) DEFAULT NULL COMMENT '部门id',
+ ADD COLUMN `assets_spec` VARCHAR (100) CHARACTER
+SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '设备规格型号',
+ ADD COLUMN `factory_name` VARCHAR (100) CHARACTER
+SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '生产商',
+ ADD COLUMN `factory_num` VARCHAR (100) CHARACTER
+SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '出厂编号',
+ ADD COLUMN `start_use_date` datetime DEFAULT NULL COMMENT '启用日期',
+ ADD COLUMN `warranty_date` datetime DEFAULT NULL COMMENT '保修日期'

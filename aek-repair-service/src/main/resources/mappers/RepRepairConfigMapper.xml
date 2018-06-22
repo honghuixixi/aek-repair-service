@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aek.ebey.repair.mapper.RepRepairConfigMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.aek.ebey.repair.model.RepRepairConfig">
+		<id column="id" property="id" />
+		<result column="repair_id" property="repairId" />
+		<result column="repair_name" property="repairName" />
+		<result column="mobile" property="mobile" />
+		<result column="dept_id" property="deptId" />
+		<result column="dept_name" property="deptName" />
+		<result column="job_id" property="jobId" />
+		<result column="job_name" property="jobName" />
+		<result column="tenant_id" property="tenantId" />
+		<result column="take_order_dept_id" property="takeOrderDeptId" />
+		<result column="take_order_dept_name" property="takeOrderDeptName" />
+		<result column="del_flag" property="delFlag" />
+	</resultMap>
+
+  
+    <select id="getTakeOrderDeptNames" resultType="string">
+    	SELECT
+			REPLACE (GROUP_CONCAT(take_order_dept_name),',','；') AS takeOrderDeptName
+		FROM
+			rep_repair_config
+		WHERE
+			repair_id = #{repairId}
+		AND del_flag = 0
+		AND tenant_id=#{tenantId}
+    </select>
+    
+    <select id="getTakeOrderDeptId" resultType="com.aek.ebey.repair.model.vo.RepConfigDeptVo">
+    	SELECT
+			take_order_dept_id AS id,
+			take_order_dept_name as name
+		FROM
+			rep_repair_config
+		WHERE
+			tenant_id=#{tenantId}
+		AND
+			del_flag = 0
+    </select>
+    
+    <select id="getSelfTakeOrderDepts" resultType="com.aek.ebey.repair.model.vo.RepConfigDeptVo">
+    	SELECT
+			take_order_dept_id id,
+			take_order_dept_name NAME
+		FROM
+			rep_repair_config
+		WHERE
+			tenant_id = #{tenantId}
+		AND repair_id = #{repairId}
+    </select>
+    
+    <delete id="deletByEnableDelDeptId">
+    	DELETE 
+    	FROM
+			rep_repair_config
+		WHERE
+			take_order_dept_id IN
+		<if test="depts != null and depts.size() > 0">
+			<foreach collection="depts" item="item" index="index" open="(" separator="," close=")">
+			#{item.id}
+			</foreach>
+		</if>
+		AND tenant_id=#{tenantId}
+    </delete>
+    
+    <delete id="deletByRepairIdList">
+    	DELETE 
+    	FROM
+			rep_repair_config
+		WHERE
+			repair_id IN
+		<if test="repairs != null and repairs.size() > 0">
+			<foreach collection="repairs" item="item" index="index" open="(" separator="," close=")">
+			#{item.id}
+			</foreach>
+		</if>
+		AND tenant_id=#{tenantId}
+    </delete>
+    
+    <delete id="deletByTenantId">
+    	DELETE 
+    	FROM
+			rep_repair_config
+		WHERE
+			tenant_id=#{tenantId}
+    </delete>
+    
+    <delete id="delByTenantIdRepairId">
+    	DELETE FROM `rep_repair_config` WHERE tenant_id=#{tenantId} AND repair_id=#{repairId}
+    </delete>
+    
+    <update id="updateDept">
+    	UPDATE 
+    		rep_repair_config
+		SET 
+			take_order_dept_name=#{dept.name} WHERE take_order_dept_id=#{dept.id}
+		AND tenant_id=#{tenantId}
+    </update>
+    
+    <update id="updateRepConfigUser">
+    	UPDATE 
+    		rep_repair_config
+		SET 
+			repair_name=#{repUser.realName},
+			mobile=#{repUser.mobile},
+			dept_id=#{repUser.deptId},
+			dept_name=#{repUser.deptName},
+			job_id=#{repUser.jobId},
+			job_name=#{repUser.jobName} 
+			WHERE repair_id=#{repUser.id}
+		AND tenant_id=#{tenantId}
+    </update>
+    
+    <select id="getByTakeOrderDeptId" resultMap="BaseResultMap">
+    	SELECT * FROM rep_repair_config WHERE take_order_dept_id=#{deptId} AND tenant_id=#{tenantId} AND repair_id != #{repairId}
+    </select>
+    
+    <select id="getByRepairId" resultMap="BaseResultMap">
+    	select * from rep_repair_config where repair_id=#{repairId}	
+    </select>
+    
+    <select id="getRepairGroupById" resultType="com.aek.ebey.repair.model.vo.RepUserVo">
+    	SELECT repair_id id,repair_name realName FROM `rep_repair_config` WHERE del_flag=0 AND tenant_id=#{tenantId} GROUP BY repair_id
+    </select>
+    
+    <select id="selectConfiger" resultType="com.aek.ebey.repair.model.vo.RepConfiger">
+    	SELECT repair_id id,repair_name realName,mobile FROM rep_repair_config WHERE take_order_dept_id=#{deptId}
+    </select>
+    
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aek.ebey.repair.mapper.RepRepairReportMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.aek.ebey.repair.model.RepRepairReport">
+		<id column="id" property="id" />
+		<result column="apply_id" property="applyId" />
+		<result column="mode_status" property="modeStatus" />
+		<result column="outside_company" property="outsideCompany" />
+		<result column="outside_phone" property="outsidePhone" />
+		<result column="attachment" property="attachment" />
+		<result column="fault_type" property="faultType" />
+		<result column="fault_phenomenon" property="faultPhenomenon" />
+		<result column="fault_reason" property="faultReason" />
+		<result column="work_content" property="workContent" />
+		<result column="repair_start_date" property="repairStartDate" />
+		<result column="repair_end_date" property="repairEndDate" />
+		<result column="actual_start_date" property="actualStartDate" />
+		<result column="repair_hours" property="repairHours" />
+		<result column="engineer_name" property="engineerName" />
+		<result column="engineer_num" property="engineerNum" />
+		<result column="actual_end_date" property="actualEndDate" />
+		<result column="call_repair_date" property="callRepairDate" />
+		<result column="arrival_date" property="arrivalDate" />
+		<result column="leave_date" property="leaveDate" />
+		<result column="repair_result" property="repairResult" />
+		<result column="repair_cost" property="repairCost" />
+		<result column="parts_cost" property="partsCost" />
+		<result column="total_cost" property="totalCost" />
+		<result column="repair_invoice" property="repairInvoice" />
+		<result column="remarks" property="remarks" />
+		<result column="repair_id" property="repairId" />
+		<result column="repair_name" property="repairName" />
+		<result column="repair_date" property="repairDate" />
+		<result column="del_flag" property="delFlag" />
+		<result column="report_status" property="reportStatus" />
+		<result column="send_person" property="sendPerson" />
+		<result column="send_phone" property="sendPhone" />
+		<result column="report_file" property="reportFile" />
+		<result column="trouble_code" property="troubleCode" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, apply_id AS applyId, mode_status AS modeStatus, outside_company AS outsideCompany, outside_phone AS outsidePhone, attachment, fault_type AS faultType, fault_phenomenon AS faultPhenomenon, fault_reason AS faultReason, work_content AS workContent, repair_start_date AS repairStartDate, repair_end_date AS repairEndDate, actual_start_date AS actualStartDate, repair_hours AS repairHours, engineer_name AS engineerName, engineer_num AS engineerNum, actual_end_date AS actualEndDate, call_repair_date AS callRepairDate, arrival_date AS arrivalDate, leave_date AS leaveDate, repair_result AS repairResult, repair_cost AS repairCost, parts_cost AS partsCost, total_cost AS totalCost, repair_invoice AS repairInvoice, remarks, repair_id AS repairId, repair_name AS repairName, repair_date AS repairDate, del_flag AS delFlag,report_status AS reportStatus,send_person AS sendPerson,send_phone AS sendPhone,report_file AS reportFile,trouble_code AS troubleCode
+    </sql>
+</mapper>

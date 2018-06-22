@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aek.ebey.repair.mapper.RepRepairBillMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.aek.ebey.repair.model.RepRepairBill">
+		<id column="id" property="id" />
+		<result column="tenant_id" property="tenantId" />
+		<result column="tenant_name" property="tenantName" />
+		<result column="bill_no" property="billNo" />
+		<result column="type" property="type" />
+		<result column="status" property="status" />
+		<result column="apply_id" property="applyId" />
+		<result column="apply_no" property="applyNo" />
+		<result column="apply_user_id" property="applyUserId" />
+		<result column="apply_user_name" property="applyUserName" />
+		<result column="apply_user_dept_name" property="applyUserDeptName" />
+		<result column="assets_name" property="assetsName" />
+		<result column="assets_dept_name" property="assetsDeptName" />
+		<result column="assets_spec" property="assetsSpec" />
+		<result column="serial_num" property="serialNum" />
+		<result column="start_use_date" property="startUseDate" />
+		<result column="report_repair_date" property="reportRepairDate" />
+		<result column="external_repair_company" property="externalRepairCompany" />
+		<result column="apply_time" property="applyTime" />
+		<result column="fee" property="fee" />
+		<result column="remark" property="remark" />
+		<result column="current_index" property="currentIndex" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, 
+        tenant_id AS tenantId, 
+        tenant_name AS tenantName, 
+        bill_no AS billNo,
+		type AS type,
+		status AS status,
+		apply_id AS applyId,
+		apply_no AS applyNo,
+		apply_user_id AS applyUserId,
+		apply_user_name AS applyUserName,
+		apply_user_dept_name AS applyUserDeptName,
+		assets_name AS assetsName,
+		assets_dept_name AS assetsDeptName,
+		assets_spec AS assetsSpec,
+		serial_num AS serialNum,
+		start_use_date AS startUseDate,
+		report_repair_date AS reportRepairDate,
+		external_repair_company AS externalRepairCompany,
+		apply_time AS applyTime,
+		fee AS fee,
+		remark AS remark,
+		current_index AS currentIndex,
+		total_index AS totalIndex
+    </sql>
+    
+    <!-- 单据申请列表数据 -->
+    <select id="getRepairBillPage" resultType="com.aek.ebey.repair.request.RepRepairBillResponse">
+    	select
+    	 	b.id, 
+	        b.tenant_id AS tenantId, 
+	        b.tenant_name AS tenantName, 
+	        b.bill_no AS billNo,
+			b.type AS type,
+			b.status AS status,
+			b.apply_id AS applyId,
+			b.apply_no AS applyNo,
+			b.apply_user_id AS applyUserId,
+			b.apply_user_name AS applyUserName,
+			b.apply_user_dept_name AS applyUserDeptName,
+			b.assets_name AS assetsName,
+			b.assets_dept_name AS assetsDeptName,
+			b.apply_user_name AS applyUserName,
+			b.assets_name AS assetsName,
+			b.assets_dept_name AS assetsDeptName,
+			b.assets_spec AS assetsSpec,
+			b.serial_num AS serialNum,
+			b.start_use_date AS startUseDate,
+			b.report_repair_date AS reportRepairDate,
+			b.external_repair_company AS externalRepairCompany,
+			b.apply_time AS applyTime,
+			b.fee AS fee,
+			b.remark AS remark,
+			b.current_index AS currentIndex,
+			b.total_index AS totalIndex,
+			f.check_user_name AS checkUserName
+    	from rep_repair_bill b
+    	left join rep_repair_bill_check_flow f on b.id = f.bill_id and b.current_index = f.index
+    	where 1=1
+    	<!-- 机构内单据申请 -->
+    	<if test="q.tenantId != null and q.tenantId != ''">
+    		and b.tenant_id = #{q.tenantId}
+    	</if>
+    	<!-- 我的申请 -->
+    	<if test="q.applyType != null and q.applyType != '' and q.applyType == 1">
+    		and b.apply_user_id = #{user.id}
+    	</if>
+    	<!-- 状态查询 -->
+    	<if test="q.status != null and q.status != ''">
+    		and b.status = #{q.status}
+    	</if>
+    	<!-- 单据类型 -->
+    	<if test="q.type != null and q.type != ''">
+    		and b.type = #{q.type}
+    	</if>
+    	<!-- 关键字查询 -->
+    	<if test="q.keyword != null and q.keyword != ''">
+    		and (b.assets_name like CONCAT('%',#{q.keyword},'%') or b.bill_no like CONCAT('%',#{q.keyword},'%'))
+    	</if>
+    	order by b.status,b.apply_time desc
+    </select>
+    
+</mapper>

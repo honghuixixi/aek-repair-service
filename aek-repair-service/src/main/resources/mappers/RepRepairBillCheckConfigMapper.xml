@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aek.ebey.repair.mapper.RepRepairBillCheckConfigMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.aek.ebey.repair.model.RepRepairBillCheckConfig">
+		<id column="id" property="id" />
+		<result column="tenant_id" property="tenantId" />
+		<result column="check_user_id" property="checkUserId" />
+		<result column="check_user_mobile" property="checkUserMobile" />
+		<result column="check_user_name" property="checkUserName" />
+		<result column="check_user_job" property="checkUserJob" />
+		<result column="min_fee" property="minFee" />
+		<result column="max_fee" property="maxFee" />
+		<result column="index" property="index" />
+		<result column="index_name" property="indexName" />
+		<result column="remark" property="remark" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, 
+        tenant_id,
+        check_user_id,
+		check_user_mobile,
+		check_user_name,
+		check_user_job,
+		min_fee,
+		max_fee,
+		`index` AS 'index',
+		index_name,
+		remark AS remark
+    </sql>
+    
+    <!-- 获取当前机构审批流程配置 -->
+    <select id="getRepRepairBillCheckConfig" resultMap="BaseResultMap">
+    	select *
+    	from rep_repair_bill_check_config 
+    	where tenant_id = #{tenantId} and (max_fee &lt; #{fee} or min_fee &lt;= #{fee})
+    	order by `index` asc
+    </select>
+    
+    <!-- 获取当前机构审批流程配置信息 -->
+    <select id="getRepRepairBillCheckConfigByTenantId" resultMap="BaseResultMap">
+    	select *
+    	from rep_repair_bill_check_config 
+    	where tenant_id = #{tenantId}
+    	order by `index` asc
+    </select>
+    
+    <!-- 根据机构删除工作流配置 -->
+    <delete id="delByTenantId">
+    	delete from rep_repair_bill_check_config where tenant_id=#{tenantId}
+    </delete>
+    
+    <select id="getRepRepairBillCheckConfigDetail" resultMap="BaseResultMap">
+    	select 
+    	<include refid="Base_Column_List"/>
+    	from rep_repair_bill_check_config 
+    	where tenant_id = #{tenantId}
+    	order by `index` asc
+    </select>
+    
+</mapper>

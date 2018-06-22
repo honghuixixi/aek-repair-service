@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aek.ebey.repair.mapper.RepRepairApplyMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.aek.ebey.repair.model.RepRepairApply">
+		<id column="id" property="id" />
+		<result column="tenant_id" property="tenantId" />
+		<result column="apply_no" property="applyNo" />
+		<result column="assets_id" property="assetsId" />
+		<result column="dept_id" property="deptId" />
+		<result column="assets_dept_id" property="assetsDeptId" />
+		<result column="assets_dept_name" property="assetsDeptName" />
+		<result column="dept_name" property="deptName" />
+		<result column="assets_spec" property="assetsSpec" />
+		<result column="factory_name" property="factoryName" />
+		<result column="assets_name" property="assetsName" />
+		<result column="assets_brand" property="assetsBrand" />
+		<result column="assets_num" property="assetsNum" />
+		<result column="factory_num" property="factoryNum" />
+		<result column="start_use_date" property="startUseDate" />
+		<result column="warranty_date" property="warrantyDate" />
+		<result column="fault_desc" property="faultDesc" />
+		<result column="assets_img" property="assetsImg" />
+		<result column="status" property="status" />
+		<result column="report_repair_id" property="reportRepairId" />
+		<result column="report_repair_name" property="reportRepairName" />
+		<result column="report_repair_phone" property="reportRepairPhone" />
+		<result column="report_repair_date" property="reportRepairDate" />
+		<result column="assets_status" property="assetsStatus" />
+		<result column="del_flag" property="delFlag" />
+		<result column="report_status" property="reportStatus" />
+		<result column="assets_desc" property="assetsDesc" />
+		<result column="assets_local" property="assetsLocal" />
+		<result column="serial_num" property="serialNum" />
+		<result column="assets_file" property="assetsFile" />
+		<result column="turn_num" property="turnNum" />
+		<result column="send_person" property="sendPerson" />
+		<result column="send_phone" property="sendPhone" />
+		<result column="take_order_id" property="takeOrderId" />
+		<result column="take_order_name" property="takeOrderName" />
+		<result column="seven_status" property="sevenStatus" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, tenant_id AS tenantId,seven_status AS sevenStatus, apply_no AS applyNo, assets_id AS assetsId, dept_id AS deptId,assets_dept_id AS assetsDeptId,assets_dept_name AS assetsDeptName, assets_spec AS assetsSpec, factory_name AS factoryName, assets_name AS assetsName, dept_name AS deptName,assets_brand AS assetsBrand, assets_num AS assetsNum, factory_num AS factoryNum, start_use_date AS startUseDate, warranty_date AS warrantyDate, fault_desc AS faultDesc, assets_img AS assetsImg, status, report_repair_id AS reportRepairId, report_repair_name AS reportRepairName, report_repair_phone AS reportRepairPhone, report_repair_date AS reportRepairDate, assets_status AS assetsStatus, del_flag AS delFlag, report_status AS reportStatus, assets_desc AS assetsDesc, assets_local AS assetsLocal, serial_num AS serialNum, assets_file AS assetsFile,turn_num AS turnNum,send_person AS sendPerson,send_phone AS sendPhone, take_order_id AS takeOrderId, take_order_name AS takeOrderName
+    </sql>
+    
+    <select id="search" resultType="com.aek.ebey.repair.request.ApplyResponse">
+    
+   	SELECT
+   	
+  		a.id,
+		a.tenant_id AS tenantId,
+		a.apply_no AS applyNo,
+		a.assets_id AS assetsId,
+		a.dept_id AS deptId,
+		a.assets_dept_id AS assetsDeptId,
+		a.assets_dept_name AS assetsDeptName,
+		a.assets_spec AS assetsSpec,
+		a.factory_name AS factoryName,
+		a.assets_name AS assetsName,
+		a.dept_name AS deptName,
+		a.assets_brand AS assetsBrand,
+		a.assets_num AS assetsNum,
+		a.factory_num AS factoryNum,
+		a.start_use_date AS startUseDate,
+		a.warranty_date AS warrantyDate,
+		a.fault_desc AS faultDesc,
+		a.assets_img AS assetsImg,
+		a. STATUS AS STATUS,
+		a.report_repair_id AS reportRepairId,
+		a.report_repair_name AS reportRepairName,
+		a.report_repair_phone AS reportRepairPhone,
+		a.report_repair_date AS reportRepairDate,
+		a.assets_status AS assetsStatus,
+		a.del_flag AS delFlag,
+		a.report_status AS reportStatus,
+		DATE_FORMAT(`report_repair_date`,'%Y-%m-%d %H:%i') AS reportRepairDateStr,
+		o.predict_reach_date AS predictReachDate
+	
+	FROM 
+		rep_repair_apply a LEFT JOIN rep_repair_take_orders o on a.id=o.apply_id WHERE a.del_flag=0
+		
+		<if test="q.tenantId != null">
+			and a.tenant_id = #{q.tenantId}
+		</if>
+		<!-- index=1待接单2待维修3待验收 -->
+		<if test="q.index != null and q.index == 1">
+			and a.take_order_id=#{user.id}
+		</if>
+		<if test="q.index != null and q.index == 2">
+			and o.repair_id=#{user.id}
+		</if>
+		<if test="q.index != null and q.index == 3">
+			and a.assets_dept_id=#{user.deptId}
+		</if>
+		<!-- end -->
+		<if test="q.assetsDeptName != null and q.assetsDeptName !=''">
+			and a.assets_dept_name = #{q.assetsDeptName}
+		</if>
+		<if test="(q.assetsDeptName == null or q.assetsDeptName == '') and user.dataScope != null   and user.dataScope ==2">
+			and a.assets_dept_id in 
+		     <foreach item="item" index="index" collection="user.deptIds" open="(" separator="," close=")">  
+		      ${item}  
+		     </foreach> 
+		</if>
+		<if test="(q.assetsDeptName == null or q.assetsDeptName == '') and user.dataScope != null and user.definedDeptIds !=null and user.dataScope ==4">
+				and a.assets_dept_id in 
+			    <foreach item="item" index="index" collection="user.definedDeptIds" open="(" separator="," close=")">  
+			      ${item}  
+			    </foreach> 
+		</if>
+		<if test="(q.assetsDeptName == null or q.assetsDeptName == '') and user.dataScope != null and user.dataScope ==3">
+			and a.assets_dept_id = #{user.deptId}
+		</if>
+		<if test="q.status != null and q.status !=''">
+			and a.status = #{q.status}
+		</if>
+		<if test="q.statusList != null and q.statusList !=''">
+			and a.status in  
+			 <foreach item="item" index="index" collection="q.statusList" open="(" separator="," close=")">  
+		      ${item}  
+		     </foreach> 
+		</if>
+		
+		<if test="q.keyword != null and q.keyword !=''">
+			<!-- 特殊字符处理 -->
+			<!-- <if test='q.keyword == "%" or q.keyword == "[" or q.keyword == "[]" or q.keyword == "_"'>
+				and (a.assets_name  LIKE CONCAT('%[',#{q.keyword},']%') or a.assets_num LIKE CONCAT('%[',#{q.keyword},']%'))
+			</if> -->
+			<!-- <if test='q.keyword != "%" and q.keyword != "[" and q.keyword != "[]" and q.keyword != "_"'> -->
+				and (a.assets_name  LIKE CONCAT('%',#{q.keyword},'%') or a.assets_num LIKE CONCAT('%',#{q.keyword},'%')or a.factory_num LIKE CONCAT('%',#{q.keyword},'%')or a.serial_num LIKE CONCAT('%',#{q.keyword},'%'))
+			<!-- </if> -->
+		</if>
+		<if test="q.orderByField != null and q.isAsc !=null and q.isAsc ==false">
+			ORDER BY #{q.orderByField} 
+		</if>
+		<if test="q.orderByField != null and q.isAsc !=null and q.isAsc ==true">
+			ORDER BY #{q.orderByField} DESC
+		</if>
+		ORDER BY a.status,a.report_repair_date DESC
+    
+    </select>
+    
+     <select id="getApplyDetails"  parameterType="long" resultType="com.aek.ebey.repair.request.ApplyDetailsResponse">
+    
+	  SELECT
+		a.report_repair_name AS reportRepairName,
+		a.report_repair_date AS reportRepairDate,
+		b.take_order_name AS takeOrderName,
+		b.take_order_time AS takeOrderTime,
+		c.repair_name AS repairName,
+		c.repair_date AS repairDate,
+		d.repair_check_name AS repairCheckName,
+		d.repair_check_time AS repairCheckTime
+	FROM
+		rep_repair_apply a
+	LEFT OUTER JOIN rep_repair_take_orders b ON a.id = b.apply_id
+	LEFT OUTER JOIN rep_repair_report c ON a.id = c.apply_id
+	LEFT OUTER JOIN rep_repair_check d ON a.id = d.apply_id
+	WHERE
+		a.id = #{id}
+    
+    </select>
+    
+    <select id="selectApplyStatus"  resultType="com.aek.ebey.repair.request.ApplyTotalResponse">
+
+	select count(1) AS total, status from rep_repair_apply
+
+	<where>
+		<if test="tenantid !=null and tenantid !=''">
+			tenant_id=#{tenantid}
+		</if>
+		<if test="user.dataScope != null   and user.dataScope ==2">
+			and assets_dept_id in
+			<foreach item="item" index="index" collection="user.deptIds"
+				open="(" separator="," close=")">
+				${item}
+			</foreach>
+		</if>
+		<if test="user.dataScope != null and user.dataScope ==3">
+			and dept_id = #{user.deptId}
+		</if>
+		<if test="user.dataScope != null and user.definedDeptIds !=null and user.dataScope ==4">
+				and assets_dept_id in 
+			    <foreach item="item" index="index" collection="user.definedDeptIds" open="(" separator="," close=")">  
+			      ${item}  
+			    </foreach> 
+		</if>
+
+		
+	</where>
+    and del_flag=0
+    
+    group by status
+    
+    </select>
+    
+   <select id="repairRecord" resultType="com.aek.ebey.repair.request.RepairRecordResponse">
+    
+   	SELECT
+   	
+  		a.id AS applyId,
+		a.apply_no AS applyNo,
+		a.assets_id AS assetsId,
+		r.mode_status AS modeStatus,
+		a.report_repair_date AS reportRepairDate,
+		a.report_repair_name AS reportRepairName,
+		r.repair_name AS repairName,
+		r.repair_date AS  repairDate,
+		r.total_cost AS totalCost
+	
+	FROM 
+		rep_repair_apply a LEFT JOIN rep_repair_report r on a.id=r.apply_id WHERE  a.STATUS =4 and a.del_flag=0
+		
+		<if test="q.assetsId != null and q.assetsId !=''">
+			and a.assets_id = #{q.assetsId}
+		</if>
+		<if test="q.applyNo != null and q.applyNo !=''">
+			and a.apply_no  LIKE CONCAT('%',#{q.applyNo},'%')
+		</if>
+		<if test="q.modeStatus != null and q.modeStatus !=''">
+			and r.mode_status = #{q.modeStatus}
+		</if>
+		<if test="q.orderByField != null and q.isAsc !=null and q.isAsc ==false">
+			ORDER BY #{q.orderByField} 
+		</if>
+		<if test="q.orderByField != null and q.isAsc !=null and q.isAsc ==true">
+			ORDER BY #{q.orderByField} DESC
+		</if>
+		ORDER BY a.report_repair_date DESC
+    
+    </select>
+    <select id="selectCountByTenantid" resultType="int">
+    
+   	select count(1)  from rep_repair_apply
+
+	<where>
+		<if test="tenantid !=null and tenantid !=''">
+			tenant_id=#{tenantid}
+		</if>
+		<if test="user.dataScope != null   and user.dataScope ==2">
+			and assets_dept_id in
+			<foreach item="item" index="index" collection="user.deptIds"
+				open="(" separator="," close=")">
+				${item}
+			</foreach>
+		</if>
+		<if test="user.dataScope != null and user.definedDeptIds !=null and user.dataScope ==4">
+				and assets_dept_id in 
+			    <foreach item="item" index="index" collection="user.definedDeptIds" open="(" separator="," close=")">  
+			      ${item}  
+			    </foreach> 
+		</if>
+		<if test="user.dataScope != null and user.dataScope ==3">
+			and dept_id = #{user.deptId}
+		</if>
+		<if test="status != null and status !=''">
+			and status = #{status}
+		</if>
+	</where>
+    and del_flag=0
+    
+    </select>
+    
+    <select id="statsTakeOrdersByUserId" resultType="int">
+    	select count(1) from rep_repair_apply WHERE take_order_id=#{user.id} AND status=1 AND del_flag=0  
+    </select>
+    
+    <select id="statsWaitRepairByUserId" resultType="int">
+    	SELECT count(1) FROM rep_repair_apply a LEFT JOIN rep_repair_take_orders o on a.id=o.apply_id WHERE a.del_flag=0 AND a.status=2 AND o.del_flag=0 AND o.repair_id=#{user.id}  
+    </select>
+    
+    <select id="statsWaitCheckByUserDeptId" resultType="int">
+    	SELECT count(1) FROM rep_repair_apply a WHERE a.del_flag = 0 AND a.STATUS = 3 AND a.assets_dept_id = #{user.deptId} 
+    </select>
+    
+    <!-- 新建维修单据申请获取维修单列表分页数据 -->
+    <select id="getRepairApplyPageForBill" resultType="com.aek.ebey.repair.request.RepRepairBillApplyResponse">
+	   	SELECT
+	  		a.id,
+			a.tenant_id AS tenantId,
+			a.apply_no AS applyNo,
+			a.assets_id AS assetsId,
+			a.assets_name AS assetsName,
+			a.assets_dept_id AS assetsDeptId,
+			a.assets_dept_name AS assetsDeptName,
+			a.assets_spec AS assetsSpec,
+			a.serial_num AS serialNum,
+			a.start_use_date AS startUseDate,
+			DATE_FORMAT(`start_use_date`,'%Y-%m-%d') AS startUseDateStr,
+			a.report_repair_date AS reportRepairDate,
+			DATE_FORMAT(`report_repair_date`,'%Y-%m-%d %H:%i') AS reportRepairDateStr
+		FROM rep_repair_apply a WHERE a.del_flag=0
+		<if test="user.tenantId != null">
+			and a.tenant_id = #{user.tenantId}
+		</if>
+		<if test="q.assetsDeptName != null and q.assetsDeptName !=''">
+			and a.assets_dept_name = #{q.assetsDeptName}
+		</if>
+		<if test="q.assetsName != null and q.assetsName !=''">
+			and a.assets_name like CONCAT('%',#{q.assetsName},'%')
+		</if>
+		<if test="q.keyword != null and q.keyword !=''">
+			and a.apply_no  LIKE CONCAT('%',#{q.keyword},'%')
+		</if>
+		ORDER BY a.report_repair_date DESC
+    </select>
+    
+    <!-- 获取维修大屏统计数据 -->
+    <select id="getRepLargeScreenData" resultType="com.aek.ebey.repair.model.vo.RepLargeScreenDataVo">
+		SELECT 
+			SUM(case when a.status=1 then 1 else 0 end) as waitTakeNum,
+			SUM(case when a.status=2 then 1 else 0 end) as repairingNum,
+			SUM(case when a.status=3 then 1 else 0 end) as waitCheckNum,
+			SUM(case when YEARWEEK(date_format(a.report_repair_date,'%Y-%m-%d')) = YEARWEEK(now()) then 1 else 0 end) as currentWeekApplyNum,
+			SUM(case when a.status in(3,4) and YEARWEEK(date_format(r.repair_date,'%Y-%m-%d')) = YEARWEEK(now()) then 1 else 0 end) as currentWeekCompleteNum,
+			SUM(case when date_format(a.report_repair_date, '%Y%m') = date_format(curdate() , '%Y%m') then 1 else 0 end) as currentMonthApplyNum,
+			SUM(case when a.status in(3,4) and date_format(r.repair_date, '%Y%m') = date_format(curdate() , '%Y%m') then 1 else 0 end) as currentMonthCompleteNum
+		FROM rep_repair_apply a
+		LEFT JOIN rep_repair_report r on r.apply_id = a.id
+		WHERE tenant_id=#{tenantId}
+    </select>
+    
+    <!-- 获取维修大屏维修单数据 -->
+    <select id="getLargeScreenApplyData" resultType="com.aek.ebey.repair.model.vo.RepRepairApplyVo">
+    	SELECT
+    		report_repair_date as reportRepairDate,
+    		assets_dept_name as assetsDeptName,
+    		assets_num as assetsNum,
+    		assets_name as assetsName,
+    		status as status,
+    		(case when status=1 then '待接单' when status=2 then '维修中' when status=3 then '待验收' else '其他' end) as statusText,
+    		take_order_name as takeOrderName
+    	FROM rep_repair_apply
+    	WHERE tenant_id=#{tenantId} and status != 4 order by status asc,report_repair_date asc limit 0,1000
+    </select>
+    
+    <!-- 统计维修概览数据 -->
+    <select id="getRepairData" resultType="com.aek.ebey.repair.model.vo.RepairDataVo">
+    	SELECT 
+			tmp.tenantId,
+			tmp.applyTotalNumYear,
+			tmp.repairTotalCapitalYear,
+			tmp.completeTotalNumYear,
+			tmp.repairAssetsNum,
+			tmp.waitTakeNum as waitRepairAssetsNum,
+			tmp.waitTakeNum,
+			FORMAT((tmp.waitTakeNum/(tmp.waitTakeNum+tmp.repairingNum+tmp.waitCheckNum+tmp.completedNum))*100,2) as waitTakeProportion,
+			tmp.repairingNum,
+			FORMAT((tmp.repairingNum/(tmp.waitTakeNum+tmp.repairingNum+tmp.waitCheckNum+tmp.completedNum))*100,2) as repairingProportion,
+			tmp.waitCheckNum,
+			FORMAT((tmp.waitCheckNum/(tmp.waitTakeNum+tmp.repairingNum+tmp.waitCheckNum+tmp.completedNum))*100,2) as waitCheckProportion,
+			tmp.completedNum,
+			FORMAT((tmp.completedNum/(tmp.waitTakeNum+tmp.repairingNum+tmp.waitCheckNum+tmp.completedNum))*100,2) as completedProportion
+		FROM (
+			SELECT a.tenant_id as tenantId,
+				sum(case when YEAR(a.report_repair_date)=YEAR(NOW()) and a.report_repair_date &lt; #{endTime} then 1 else 0 end) as applyTotalNumYear,
+				sum(case when a.status in(3,4) and YEAR(r.repair_date)=YEAR(NOW()) and r.repair_date &lt; #{endTime} then 1 else 0 end) as completeTotalNumYear,
+				sum(case when a.status in(3,4) and YEAR(r.repair_date)=YEAR(NOW()) and r.repair_date &lt; #{endTime} then ifnull(r.total_cost,0) else 0 end) as repairTotalCapitalYear,
+				sum(case when a.status=2 and a.report_repair_date &lt; #{endTime} then 1 else 0 end) as repairAssetsNum,
+				sum(case when a.status=1 and a.report_repair_date &lt; #{endTime} then 1 else 0 end) as waitTakeNum,
+				sum(case when a.status=2 and a.report_repair_date &lt; #{endTime} then 1 else 0 end) as repairingNum,
+				sum(case when a.status=3 and a.report_repair_date &lt; #{endTime} then 1 else 0 end) as waitCheckNum,
+				sum(case when a.status=4 and a.report_repair_date &lt; #{endTime} then 1 else 0 end) as completedNum
+			FROM rep_repair_apply a
+			LEFT JOIN rep_repair_report r on a.id = r.apply_id group by a.tenant_id
+	   ) tmp
+    </select>
+    
+    <!-- 获取维修月份统计数据 -->
+    <select id="getRepairDataMonthByDay"  resultType="com.aek.ebey.repair.model.vo.RepairDataMonthVo">
+    	SELECT 
+    		a.tenant_id as tenantId,
+			sum(case when a.status in(3,4) and date_format(r.repair_date,'%Y-%m')=date_format(now(),'%Y-%m') and  r.repair_date &lt; #{endTime} then 1 else 0 end) as repairCompleteTotalNum,
+			sum(case when a.status in(3,4) and date_format(r.repair_date,'%Y-%m')=date_format(now(),'%Y-%m') and  r.repair_date &lt; #{endTime} then ifnull(r.total_cost,0) else 0 end) as repairComplateTotalCapital,
+			now() countTime,
+			date_format(now(),'%Y-%m') as countMonth
+		FROM rep_repair_apply a
+		LEFT JOIN rep_repair_report r on a.id = r.apply_id 
+		group by a.tenant_id
+    </select>
+    
+      <!-- <select id="selectByQuery" resultType="com.aek.ebey.repair.request.SevenDataResponse">
+	    select 
+	    r.tenant_id tenantId,
+	    date_format(date_sub(now(),interval 1 MONTH),'%Y-%m') countMonth,
+	    count(1) applyTotalNum,	
+	    now() countTime, 
+	    now() updateTime 
+	    from 
+	    rep_repair_apply r 
+	    where 
+		<![CDATA[
+		   	r.report_repair_date  <=  #{query.endDate}
+		   	and r.report_repair_date >= #{query.startDate}
+		 ]]>
+	    GROUP BY r.tenant_id;
+   
+
+    </select> -->
+    
+    <!-- <select id="selectByQuery2" resultType="com.aek.ebey.repair.request.SevenDataResponse">
+	    select 
+	    r.tenant_id tenantId,
+	    date_sub(now(),interval 1 day) countDate,
+	    count(1) applyTotalNum,	
+	    now() countTime, 
+	    now() updateTime 
+	    from 
+	    rep_repair_apply r 
+	    where r.seven_status=1
+		<![CDATA[
+		    and r.report_repair_date  <=  #{query.endDate}
+		   	and r.report_repair_date >= #{query.startDate}
+		 ]]>
+	    GROUP BY r.tenant_id;
+    </select> -->
+    
+    <!-- 每月总申请数与7天内完修数 -->
+    <select id="selectByQuery" resultType="com.aek.ebey.repair.request.SevenDataResponse">
+    	SELECT 
+    		tmp.tenantId,
+    		tmp.countTime,
+    		tmp.countMonth,
+    		tmp.updateTime,
+    		tmp.applyTotalNum,
+    		tmp.servenCompleteTotalNum,
+    		(CASE WHEN (tmp.applyTotalNum is not null and tmp.applyTotalNum !=0) THEN FORMAT((tmp.servenCompleteTotalNum/tmp.applyTotalNum)*100,2) ELSE 0 END) as servenCompleteRate
+    	FROM
+    	(
+	    	SELECT 
+	    		tenant_id as tenantId,
+				sum( case when (report_repair_date &lt;= #{query.endDate} and report_repair_date &gt;= #{query.startDate}) then 1 else 0 end) as applyTotalNum,
+				sum( case when (seven_status=1 and report_repair_date &lt;= #{query.endDate} and report_repair_date &gt;= #{query.startDate}) then 1 else 0 end) as servenCompleteTotalNum,
+				date_format(#{query.startDate},'%Y-%m') countMonth,
+				now() countTime, 
+		    	now() updateTime 
+			FROM rep_repair_apply
+			GROUP BY tenant_id
+		) tmp
+    </select>
+    
+</mapper>

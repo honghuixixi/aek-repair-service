@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aek.ebey.repair.mapper.RepMessageReceiveMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.aek.ebey.repair.model.RepMessageReceive">
+		<id column="id" property="id" />
+		<result column="message_id" property="messageId" />
+		<result column="user_id" property="userId" />
+		<result column="message_status" property="messageStatus" />
+		<result column="del_flag" property="delFlag" />
+		<result column="status" property="status" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, message_id AS messageId, user_id AS userId, message_status AS messageStatus, del_flag AS delFlag, status
+    </sql>
+     <select id="selectMyPage" resultType="com.aek.ebey.repair.request.MessageResponse">
+  		select 
+  		r.id,
+  		r.message_id AS messageId, 
+  		r.user_id AS userId, 
+  		r.message_status AS messageStatus,
+  		m.module_id AS moduleId, 
+  		m.message_content AS messageContent, 
+  		m.message_time AS messageTime, 
+  		m.remarks AS remarks,
+  		m.del_flag AS delFlag,
+  		m.status AS status
+  		from rep_repair_message m INNER JOIN rep_message_receive r on m.id=r.message_id 
+  		where m.del_flag=0 
+  		
+  		<if test="q.messageStatus != null">
+			and r.message_status = #{q.messageStatus}
+		</if>
+		
+		<if test="user.id != null and user.id !=''">
+			and r.user_id = #{user.id}
+		</if>
+		ORDER BY r.message_status, m.message_time DESC
+	</select>
+	
+	<select id="selectMyPageX" resultType="com.aek.ebey.repair.request.MessageResponse">
+  		select 
+  		r.id,
+  		r.message_id AS messageId, 
+  		r.user_id AS userId, 
+  		r.message_status AS messageStatus,
+  		m.module_id AS moduleId, 
+  		m.message_content AS messageContent, 
+  		m.message_time AS messageTime, 
+  		m.remarks AS remarks,
+  		m.del_flag AS delFlag,
+  		m.status AS status
+  		from rep_repair_message m INNER JOIN rep_message_receive r on m.id=r.message_id 
+  		where m.del_flag=0 and m.status in(1,3,4,6)
+  		
+  		<if test="q.messageStatus != null">
+			and r.message_status = #{q.messageStatus}
+		</if>
+		
+		<if test="user.id != null and user.id !=''">
+			and r.user_id = #{user.id}
+		</if>
+		ORDER BY r.message_status, m.message_time DESC
+	</select>
+	
+	<update id="updateByStatus">
+	update rep_message_receive  set message_status=1 where user_id=#{userId} and del_flag=0 and message_status=0
+	
+	</update>
+</mapper>
